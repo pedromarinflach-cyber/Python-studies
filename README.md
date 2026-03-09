@@ -1,2 +1,8 @@
-# Python-studies
-Repository dedicated to my Python learning journey, including exercises, small projects and practice scripts.
+# Python Studies
+
+This repository contains my Python learning exercises and small projects.
+
+Topics I am learning:
+- Python basics
+- Automation
+- Security scripts
