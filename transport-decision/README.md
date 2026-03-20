@@ -1,120 +1,182 @@
-# 🚗 Transport Decision
+# Transport Decision
 
-This project is a simple Python script that simulates a real-life decision: whether a person should go somewhere based on different conditions.
-
----
-
-## 📌 Project Idea
-
-The goal of this project is to practice conditional logic by modeling a common situation:
-
-> “Should I go or not based on distance, weather, and transportation options?”
-
-Instead of solving abstract problems, this script applies logic to something practical and easy to understand.
+A Python script that simulates a real-life decision: whether a person should travel to a destination based on distance, weather, and available transportation.
 
 ---
 
-## ⚙️ How it works
+## Overview
 
-The script takes into account the following variables:
+The script evaluates five variables and returns `True` (go) or `False` (do not go) based on a set of conditional rules that mirror how someone would actually think through this decision.
 
-* `distance_mi` → distance to the destination (in miles)
-* `is_raining` → whether it is raining or not
-* `has_bike` → if a bike is available
-* `has_car` → if a car is available
-* `has_ride_share_app` → if a ride-sharing option is available
+**Variables:**
 
-Based on these factors, the program returns:
-
-* `True` → go
-* `False` → do not go
-
----
-
-## 🔍 Decision Logic
-
-The logic follows these general rules:
-
-### 📏 Short distance (≤ 1 mile)
-
-* If it's not raining → go
-* If it's raining → don't go
-
-### 🚴 Medium distance (1 to 6 miles)
-
-* If no bike is available → don't go
-* If it's raining → don't go
-* If bike is available and it's not raining → go
-
-### 🚗 Long distance (> 6 miles)
-
-* If ride-sharing is available → go
-* If a car is available → go
-* Otherwise → don't go
+| Variable             | Type    | Description                          |
+|----------------------|---------|--------------------------------------|
+| `distance_mi`        | `int`   | Distance to destination in miles     |
+| `is_raining`         | `bool`  | Whether it is currently raining      |
+| `has_bike`           | `bool`  | Whether a bike is available          |
+| `has_car`            | `bool`  | Whether a car is available           |
+| `has_ride_share_app` | `bool`  | Whether a ride-sharing app is available |
 
 ---
 
-## ▶️ How to run
+## Code Structure and Flow
 
-1. Clone the repository
-2. Open the project folder
-3. Run the script:
+The script uses a chain of `if / elif / else` conditions to evaluate the situation step by step. Each condition is checked in order — the first one that matches determines the output, and the rest are skipped.
 
-```
-python transport_decision.py
+### Step 1 — No Distance
+
+```python
+if not distance_mi:
+    print(False)
 ```
 
----
+If `distance_mi` is `0` or not set, the script immediately outputs `False`. There is no destination to go to.
 
-## ▶️ Example
+### Step 2 — Short Distance (≤ 1 mile)
 
-**Input:**
-
-```
-Distance: 2
-Raining: False
-Has bike: True
-Has car: True
-Ride share: False
+```python
+elif distance_mi <= 1 and not is_raining:
+    print(True)
+elif distance_mi <= 1 and is_raining:
+    print(False)
 ```
 
-**Output:**
+For short distances, the only factor that matters is the weather:
+- Not raining → go
+- Raining → don't go
+
+A short distance is walkable, so no transportation is required — but rain makes it impractical.
+
+### Step 3 — Medium Distance (1 to 6 miles)
+
+```python
+elif distance_mi > 1 and distance_mi <= 6 and is_raining and not has_bike:
+    print(False)
+elif distance_mi > 1 and distance_mi <= 6 and not is_raining and not has_bike:
+    print(False)
+elif distance_mi > 1 and distance_mi <= 6 and has_bike and not is_raining:
+    print(True)
+```
+
+For medium distances, two factors are evaluated together:
+- No bike available → don't go, regardless of weather
+- Bike available but raining → don't go (no condition matches, falls to `else`)
+- Bike available and not raining → go
+
+Note: a bike is the only transportation considered viable for this range. Having a car does not change the outcome here.
+
+### Step 4 — Long Distance (> 6 miles)
+
+```python
+elif distance_mi > 6 and has_ride_share_app:
+    print(True)
+elif distance_mi > 6 and has_car:
+    print(True)
+```
+
+For long distances, motorized transport is required:
+- Ride-share available → go
+- Car available → go
+
+Both conditions are checked separately so that either one is enough to proceed.
+
+### Step 5 — Default
+
+```python
+else:
+    print(False)
+```
+
+If none of the conditions above matched, the script defaults to `False`. This covers edge cases like medium distance with a bike but raining, or long distance with no car and no ride-share.
+
+---
+
+## Full Flow Diagram
 
 ```
-True
+Input received
+     │
+     ▼
+distance_mi is 0 or missing? ──Yes──► False
+     │ No
+     ▼
+distance_mi ≤ 1?
+     ├── Yes → is_raining? ──Yes──► False
+     │                    └──No───► True
+     │
+     ▼
+distance_mi between 1 and 6?
+     ├── No bike → False
+     ├── Bike + raining → False (else)
+     └── Bike + not raining → True
+     │
+     ▼
+distance_mi > 6?
+     ├── has_ride_share_app → True
+     ├── has_car → True
+     └── Neither → False (else)
 ```
 
 ---
 
-## 🧪 What I practiced
+## Example
 
-* Writing conditional statements (`if`, `elif`, `else`)
-* Structuring decision logic step by step
-* Thinking about real-world scenarios in code
-* Handling multiple variables at the same time
+**Input (hardcoded in the script):**
 
----
+```python
+distance_mi = 8
+is_raining = True
+has_bike = False
+has_car = True
+has_ride_share_app = False
+```
 
-## ⚠️ Limitations
+**Execution path:**
 
-* Not all variables are taken as user input yet
-* The logic could be simplified and optimized
-* Some conditions are repetitive
-
----
-
-## 🔧 Possible Improvements
-
-* Refactor the logic to make it cleaner and more efficient
-* Turn the script into a reusable function
-* Allow user input for all variables
-* Add more conditions (time, urgency, cost, etc.)
-* Build a simple interface (CLI or web version)
+1. `distance_mi` is 8 — not zero, move on
+2. Not ≤ 1 — skip short distance checks
+3. Not between 1 and 6 — skip medium distance checks
+4. Greater than 6 — check long distance conditions
+5. `has_ride_share_app` is `False` — skip
+6. `has_car` is `True` → **output: `True`**
 
 ---
 
-## 💡 Final Thoughts
+## Known Limitations
 
-This is a simple project, but it represents an important step in developing logical thinking and problem-solving skills.
+- All variables are hardcoded — there is no user input yet
+- Some conditions in the medium distance range are repetitive and could be simplified
+- Rain is not considered for long distances (having a car or ride-share overrides weather)
 
-The focus is on consistency and building a solid foundation for more complex projects in the future.
+---
+
+## Possible Improvements
+
+- Refactor repeated conditions using cleaner boolean logic
+- Wrap the script in a reusable function with parameters
+- Accept user input via `input()` or command-line arguments
+- Add additional factors such as time, urgency, or cost
+- Build a simple CLI or web interface
+
+---
+
+## What I Practiced
+
+- Writing and structuring `if / elif / else` chains
+- Modeling real-world decision logic in code
+- Handling multiple boolean variables simultaneously
+- Thinking through edge cases and default behaviors
+
+---
+
+## Requirements
+
+- Python 3.x
+- No external libraries needed
+
+---
+
+## Author
+
+[pedromarinflach-cyber](https://github.com/pedromarinflach-cyber)
